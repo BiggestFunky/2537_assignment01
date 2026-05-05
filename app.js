@@ -10,7 +10,7 @@ const saltRounds = 12;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const expireTime = 1 * 60 * 60 * 1000; // 1 hour
+const expireTime = 1 * 60 * 60 * 1000; // 1 hour | Expiry
 
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
@@ -65,7 +65,7 @@ app.get('/', (req, res) => {
     }
 });
 
-// SIGNUP
+//signup
 app.get('/signup', (req, res) => {
     res.send(`
         <h1>Create Account</h1>
@@ -106,8 +106,9 @@ app.post('/signupSubmit', async (req, res) => {
     res.redirect('/members');
 });
 
-// LOGIN
+//login
 app.get('/login', (req, res) => {
+    const msg = req.query.msg || '';
     res.send(`
         <h1>Log In</h1>
         <form action='/loginSubmit' method='post'>
@@ -115,6 +116,7 @@ app.get('/login', (req, res) => {
             <input name='password' type='password' placeholder='password'><br><br>
             <button>Submit</button>
         </form>
+        <p style='color:red;'>${msg}</p>
     `);
 });
 
@@ -128,14 +130,14 @@ app.post('/loginSubmit', async (req, res) => {
 
     const validationResult = schema.validate({ email, password });
     if (validationResult.error != null) {
-        res.send(`Invalid input. <a href='/login'>Try again</a>`);
+        res.redirect('/login?msg=Invalid input.');
         return;
     }
 
     const result = await userCollection.find({ email }).project({ name: 1, email: 1, password: 1 }).toArray();
 
     if (result.length != 1) {
-        res.send(`User not found. <a href='/login'>Try again</a>`);
+        res.redirect('/login?msg=User not found.');
         return;
     }
 
@@ -145,11 +147,11 @@ app.post('/loginSubmit', async (req, res) => {
         req.session.email = email;
         res.redirect('/members');
     } else {
-        res.send(`Invalid email/password combination. <a href='/login'>Try again</a>`);
+        res.redirect('/login?msg=Invalid email/password combination.');
     }
 });
 
-// MEMBERS
+//members
 app.get('/members', (req, res) => {
     if (!req.session.authenticated) {
         res.redirect('/');
@@ -166,13 +168,12 @@ app.get('/members', (req, res) => {
     `);
 });
 
-// LOGOUT
+//logout
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-// STATIC FILES
 app.use(express.static(__dirname + '/public'));
 
 // 404
