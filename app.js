@@ -36,7 +36,7 @@ app.use((req, _res, next) => {
 app.use(mongoSanitize({ replaceWith: '%' }));
 
 const mongoStore = MongoStore.create({
-    mongoUrl: `mongodb://admin:${mongodb_password}@ac-beq3xfz-shard-00-00.9rwfzad.mongodb.net:27017,ac-beq3xfz-shard-00-01.9rwfzad.mongodb.net:27017,ac-beq3xfz-shard-00-02.9rwfzad.mongodb.net:27017/?ssl=true&replicaSet=atlas-gbap5y-shard-0&authSource=admin&appName=Cluster0`,
+    mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
     crypto: { secret: mongodb_session_secret }
 });
 
